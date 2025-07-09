@@ -3,31 +3,44 @@ using Microsoft.AspNetCore.Mvc;
 namespace Restaurants.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IWeatherForecastService _weatherForecastService;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IWeatherForecastService weatherForecastService)
         {
             _logger = logger;
+            _weatherForecastService = weatherForecastService;
         }
 
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            _logger.LogInformation("Getting weather forecasts");
+            return _weatherForecastService.Get();
+        }
+
+        [HttpGet]
+        [Route("test/{value}")]
+        public IActionResult Test([FromRoute] string value, [FromQuery] string max)
+        {
+            return NotFound($"Test successful with value: {value}, max: {max}");
+        }
+
+        [HttpGet]
+        [Route("generate")]
+        public IActionResult GenerateWeatherForecasts([FromQuery] int numOfResults, [FromQuery] int min, [FromQuery] int max)
+        {
+            if (numOfResults <= 0 || min >= max)
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                return BadRequest("Invalid parameters for weather forecast generation.");
+            }
+
+            var forecasts = _weatherForecastService.Generate(numOfResults, min, max);
+            return Ok(forecasts);
         }
     }
 }
