@@ -1,3 +1,5 @@
+using Restaurants.API.Controllers;
+
 namespace Restaurants.API
 {
     public class Program
@@ -9,6 +11,8 @@ namespace Restaurants.API
             // Add services to the container.
 
             builder.Services.AddControllers();
+
+            builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
 
             var app = builder.Build();
 
