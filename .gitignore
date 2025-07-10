@@ -54,3 +54,4 @@ TestResult.xml
 nunit-*.xml
 /.vs
 /Restaurants/.vs/Restaurants
+/Restaurants/.vs/
